@@ -1,0 +1,5 @@
+target/
+.idea/
+*.iml
+*.p12
+*.jks
