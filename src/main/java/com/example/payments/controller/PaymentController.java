@@ -2,6 +2,7 @@ package com.example.payments.controller;
 
 import com.example.payments.model.Payment;
 import com.example.payments.model.PaymentRequest;
+import com.example.payments.model.PaymentStatusUpdateRequest;
 import com.example.payments.service.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,25 @@ public class PaymentController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(payment);
+    }
+
+    @PatchMapping("/payments/{id}/status")
+    public ResponseEntity<?> updatePaymentStatus(
+            @PathVariable String id,
+            @RequestBody PaymentStatusUpdateRequest request
+    ) {
+        try {
+            Payment payment = paymentService.updatePaymentStatus(
+                    id,
+                    request == null ? null : request.getStatus()
+            );
+            if (payment == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(payment);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        }
     }
 
     @PostMapping("/payments")

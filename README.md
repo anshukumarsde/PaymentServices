@@ -18,8 +18,10 @@ This project is a minimal Spring Boot application that establishes the foundatio
   - `POST /api/payments` to create a payment request
   - `GET /api/payments` to list saved payments
   - `GET /api/payments/{id}` to fetch a specific payment
+  - `PATCH /api/payments/{id}/status` to mark a pending payment as settled or rejected
 - In-memory storage for prototype payment records
 - Validation to ensure source and destination accounts are provided and amounts are greater than zero
+- Payment status can transition once from `PENDING` to `SETTLED` or `REJECTED`
 - Plain HTTP for simple local development; no authentication is currently configured
 
 ## Current architecture
@@ -54,4 +56,4 @@ If the run configuration does not appear, open `PaymentApplication.java` and cli
 
 ## Status
 
-This is still an early prototype. It does not yet connect to a database or external payment provider, but it now supports a minimal end-to-end in-memory payment flow for development and API testing.
+This is still an early prototype. Payment status changes are simulated and do not move funds. The service does not yet connect to a database or external payment provider.

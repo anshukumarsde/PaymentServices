@@ -24,6 +24,23 @@ public class PaymentService {
         return payments.get(id);
     }
 
+    public Payment updatePaymentStatus(String id, PaymentStatus status) {
+        if (status == null || status == PaymentStatus.PENDING) {
+            throw new IllegalArgumentException("Status must be SETTLED or REJECTED.");
+        }
+
+        Payment payment = payments.get(id);
+        if (payment == null) {
+            return null;
+        }
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            throw new IllegalArgumentException("Only pending payments can be updated.");
+        }
+
+        payment.setStatus(status);
+        return payment;
+    }
+
     public Payment createPayment(PaymentRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Payment details are required.");
