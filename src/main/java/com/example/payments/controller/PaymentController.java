@@ -2,14 +2,12 @@ package com.example.payments.controller;
 
 import com.example.payments.model.Payment;
 import com.example.payments.model.PaymentRequest;
-import com.example.payments.model.PaymentStatusUpdateRequest;
 import com.example.payments.service.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -28,44 +26,19 @@ public class PaymentController {
 
     @GetMapping("/payments")
     public List<Payment> getPayments() {
-        return paymentService.getPayments();
+        return paymentService.findAll();
     }
 
     @GetMapping("/payments/{id}")
     public ResponseEntity<Payment> getPayment(@PathVariable String id) {
-        Payment payment = paymentService.getPayment(id);
-        if (payment == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(payment);
-    }
-
-    @PatchMapping("/payments/{id}/status")
-    public ResponseEntity<?> updatePaymentStatus(
-            @PathVariable String id,
-            @RequestBody PaymentStatusUpdateRequest request
-    ) {
-        try {
-            Payment payment = paymentService.updatePaymentStatus(
-                    id,
-                    request == null ? null : request.getStatus()
-            );
-            if (payment == null) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(payment);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
-        }
+        return paymentService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/payments")
-    public ResponseEntity<?> createPayment(@RequestBody PaymentRequest request) {
-        try {
-            Payment payment = paymentService.createPayment(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(payment);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public Payment createPayment(@RequestBody PaymentRequest request) {
+        return paymentService.create(request);
     }
 }

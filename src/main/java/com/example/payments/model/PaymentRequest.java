@@ -2,33 +2,16 @@ package com.example.payments.model;
 
 import java.math.BigDecimal;
 
-public class PaymentRequest {
-
-    private String sourceAccount;
-    private String destinationAccount;
-    private BigDecimal amount;
-
-    public String getSourceAccount() {
-        return sourceAccount;
-    }
-
-    public void setSourceAccount(String sourceAccount) {
-        this.sourceAccount = sourceAccount;
-    }
-
-    public String getDestinationAccount() {
-        return destinationAccount;
-    }
-
-    public void setDestinationAccount(String destinationAccount) {
-        this.destinationAccount = destinationAccount;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+public record PaymentRequest(String sourceAccount, String destinationAccount, BigDecimal amount) {
+    public PaymentRequest {
+        if (sourceAccount == null || sourceAccount.isBlank()) {
+            throw new IllegalArgumentException("Source account is required.");
+        }
+        if (destinationAccount == null || destinationAccount.isBlank()) {
+            throw new IllegalArgumentException("Destination account is required.");
+        }
+        if (amount == null || amount.signum() <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero.");
+        }
     }
 }
