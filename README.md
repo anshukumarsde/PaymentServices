@@ -45,6 +45,12 @@ The service listens over HTTP on port `8080`; no keystore or credentials are req
 
 This unauthenticated HTTP setup is for local development only. Do not send real payment data or expose the service publicly; use HTTPS and proper authentication before deployment.
 
+## Tests
+
+Run the payment service unit tests with:
+
+`mvn test`
+
 ## Run from IntelliJ IDEA
 
 1. Open the project by selecting its `pom.xml` and import it as a Maven project.
