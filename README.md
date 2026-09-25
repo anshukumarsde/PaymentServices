@@ -1,84 +1,54 @@
 # PaymentServices
 
-Prototype to build a payment processing service.
+A small Spring Boot MVP that simulates internal transfers between demo bank accounts.
 
-## What it does so far
+## What it does
 
-This project is a minimal Spring Boot application that establishes the foundation for a payment service. At this stage, it provides:
+- Lists seeded demo accounts and their balances
+- Transfers funds between accounts in one database transaction
+- Rejects invalid requests, unknown account numbers, transfers to the same account, and insufficient funds
+- Records completed transfers in an in-memory H2 database
 
-- A Spring Boot app entry point for running the service
-- A `Payment` domain model with:
-  - unique payment ID
-  - source account
-  - destination account
-  - amount
-- REST endpoints for basic payment operations:
-  - `GET /api/hello` to confirm the service is running
-  - `POST /api/payments` to create a payment request
-  - `GET /api/payments` to list saved payments
-  - `GET /api/payments/{id}` to fetch a specific payment
-- In-memory H2 database for payment records, accessed through a repository and service
-- Validation to ensure source and destination accounts are provided and amounts are greater than zero
-- Plain HTTP for simple local development; no authentication is currently configured
+It does not connect to a real bank or move real money. Data resets when the app stops. Authentication and HTTPS are not configured; use only for local demos.
 
-## Current architecture
+## Run
 
-The project includes:
+Use Java 17 and start `PaymentApplication` from IntelliJ, or run `mvn spring-boot:run`. The app starts on `http://localhost:8080`; no database installation is needed.
 
-- `PaymentApplication` - starts the application
-- `PaymentController` - exposes the API
-- `PaymentService` - creates and retrieves payments
-- `PaymentRepository` - persists payments with Spring Data JPA
-- `Payment` - JPA entity for payment records
-- `PaymentRequest` - incoming payload for creating a payment
+## API examples (PowerShell)
 
-## How to run
+Run with the app started. Each command below is a single line. Demo balances and transfers are treated as USD. The seeded accounts are `1001` ($1,000), `1002` ($500), and `1003` ($250); use the same PowerShell session so `$transfer.transferId` remains available.
 
-The service listens over HTTP on port `8080` and uses an in-memory H2 database. No database setup is needed.
-
-1. Start the application:
-   `mvn spring-boot:run`
-2. Open `http://localhost:8080/api/hello` to check that the service started.
-
-Payments are stored in H2 and cleared when the app stops. The simple controller-service-repository structure demonstrates a typical Spring application while keeping setup minimal.
-
-## Try the APIs with PowerShell
-
-With the application running, open PowerShell and run each command on one line:
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/health` | Check that the API is running |
+| `GET` | `/api/accounts` | List demo account balances |
+| `POST` | `/api/transfers` | Move funds between two demo accounts |
+| `GET` | `/api/transfers` | List recorded transfers |
+| `GET` | `/api/transfers/{transferId}` | Get one transfer by its ID |
 
 ```powershell
-# Check that the service is running
-Invoke-RestMethod "http://localhost:8080/api/hello"
+# Check API health
+Invoke-RestMethod "http://localhost:8080/api/health"
 
-# Create a payment and save its response (including the generated ID)
-$payment = Invoke-RestMethod -Method Post -Uri "http://localhost:8080/api/payments" -ContentType "application/json" -Body '{"sourceAccount":"ACC-100","destinationAccount":"ACC-200","amount":150.50}'
+# View account numbers and balances
+Invoke-RestMethod "http://localhost:8080/api/accounts"
 
-# List all payments
-Invoke-RestMethod "http://localhost:8080/api/payments"
+# Transfer $25.00 from account 1001 to account 1002
+$transfer = Invoke-RestMethod -Method Post -Uri "http://localhost:8080/api/transfers" -ContentType "application/json" -Body '{"fromAccountNumber":"1001","toAccountNumber":"1002","amount":25.00}'
 
-# Fetch the payment created above
-Invoke-RestMethod "http://localhost:8080/api/payments/$($payment.id)"
+# View the updated account balances
+Invoke-RestMethod "http://localhost:8080/api/accounts"
+
+# List completed transfers
+Invoke-RestMethod "http://localhost:8080/api/transfers"
+
+# Fetch the transfer created above
+Invoke-RestMethod "http://localhost:8080/api/transfers/$($transfer.transferId)"
 ```
 
-The POST command returns the new payment and saves it in `$payment`. Use that same PowerShell session for the fetch command so `$payment.id` is available.
-
-To inspect the running database, open `http://localhost:8080/h2-console` and connect with JDBC URL `jdbc:h2:mem:payments`, username `sa`, and a blank password. Do not configure this H2 connection as SQLite.
-
-This unauthenticated HTTP setup is for local development only. Do not send real payment data or expose the service publicly; use HTTPS and proper authentication before deployment.
+The H2 console is available at `http://localhost:8080/h2-console` while the app is running. Connect with JDBC URL `jdbc:h2:mem:payments`, username `sa`, and a blank password. Use H2, not SQLite.
 
 ## Tests
 
-Run the tests with:
-
-`mvn test`
-
-## Run from IntelliJ IDEA
-
-1. Open the project by selecting its `pom.xml` and import it as a Maven project.
-2. Set the Project SDK to Java 17 and wait for Maven dependencies to finish importing.
-3. Open `PaymentApplication.java` and click the run icon beside its `main` method.
-4. Open `http://localhost:8080/api/hello` to check that the service started.
-
-## Status
-
-This is a minimal MVP for creating and retrieving payment records. It does not move funds or connect to an external payment provider.
+Run all tests with `mvn test`. Tests cover the API, transfer rules, and H2 repositories.
