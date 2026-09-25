@@ -6,15 +6,21 @@ Prototype to build a payment processing service.
 
 This project is a minimal Spring Boot application that establishes the foundation for a payment service. At this stage, it provides:
 
-- A Spring Boot application entry point for running the service
+- A Spring Boot app entry point for running the service
 - A `Payment` domain model with:
+  - unique payment ID
   - source account
   - destination account
   - amount
   - payment status (`PENDING`, `SETTLED`, `REJECTED`)
-- An HTTP endpoint at `/api/hello` that confirms the service is running
-- Basic security configuration using Spring Security with an in-memory user
-- A simple starting structure that can be extended into real payment workflows
+- REST endpoints for basic payment operations:
+  - `GET /api/hello` to confirm the service is running
+  - `POST /api/payments` to create a payment request
+  - `GET /api/payments` to list saved payments
+  - `GET /api/payments/{id}` to fetch a specific payment
+- In-memory storage for prototype payment records
+- Validation to ensure source and destination accounts are provided and amounts are greater than zero
+- Plain HTTP for simple local development; no authentication is currently configured
 
 ## Current architecture
 
@@ -22,10 +28,30 @@ The project includes:
 
 - `PaymentApplication` - starts the application
 - `PaymentController` - exposes REST endpoints
+- `PaymentService` - handles in-memory creation and retrieval of payments
 - `Payment` - payment data model
+- `PaymentRequest` - incoming payload for creating a payment
 - `PaymentStatus` - enum representing payment lifecycle states
-- `SecurityConfig` - configures authentication and basic HTTP security
+
+## How to run
+
+The service listens over HTTP on port `8080`; no keystore or credentials are required.
+
+1. Start the app with Maven:
+   `mvn spring-boot:run`
+2. Open `http://localhost:8080/api/hello` to check that the service started.
+
+This unauthenticated HTTP setup is for local development only. Do not send real payment data or expose the service publicly; use HTTPS and proper authentication before deployment.
+
+## Run from IntelliJ IDEA
+
+1. Open the project by selecting its `pom.xml` and import it as a Maven project.
+2. Set the Project SDK to Java 17 and wait for Maven dependencies to finish importing.
+3. Select the `PaymentApplication` run configuration and click **Run**.
+4. Open `http://localhost:8080/api/hello` to check that the service started.
+
+If the run configuration does not appear, open `PaymentApplication.java` and click the run icon beside its `main` method.
 
 ## Status
 
-This is still an early prototype and does not yet support real payment processing, database persistence, transaction validation, or external payment-provider integration.
+This is still an early prototype. It does not yet connect to a database or external payment provider, but it now supports a minimal end-to-end in-memory payment flow for development and API testing.
