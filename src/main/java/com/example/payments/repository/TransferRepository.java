@@ -5,5 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TransferRepository extends JpaRepository<Transfer, String> {
 
-    boolean existsByFromAccountNumberOrToAccountNumber(String fromAccountNumber, String toAccountNumber);
+    boolean existsByFromAccount_AccountNumberOrToAccount_AccountNumber(
+            String fromAccountNumber,
+            String toAccountNumber
+    );
 }

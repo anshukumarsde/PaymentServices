@@ -3,10 +3,13 @@ package com.example.payments.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Entity
+@Table(name = "accounts")
 public class Account {
 
     @Id
@@ -17,6 +20,9 @@ public class Account {
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
+
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt = Instant.now();
 
     protected Account() {
     }
@@ -37,6 +43,10 @@ public class Account {
 
     public BigDecimal getBalance() {
         return balance;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
     public void updateAccountHolderName(String accountHolderName) {

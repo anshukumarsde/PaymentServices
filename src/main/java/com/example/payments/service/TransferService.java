@@ -48,8 +48,8 @@ public class TransferService {
         fromAccount.debit(request.amount());
         toAccount.credit(request.amount());
         return transferRepository.save(new Transfer(
-                request.fromAccountNumber(),
-                request.toAccountNumber(),
+                fromAccount,
+                toAccount,
                 request.amount()
         ));
     }

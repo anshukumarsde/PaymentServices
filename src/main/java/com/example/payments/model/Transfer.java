@@ -4,7 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
@@ -18,11 +21,21 @@ public class Transfer {
     @Id
     private String transferId = UUID.randomUUID().toString();
 
-    @Column(nullable = false)
-    private String fromAccountNumber;
+    @ManyToOne(optional = false)
+    @JoinColumn(
+            name = "from_account_number",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_transfers_from_account")
+    )
+    private Account fromAccount;
 
-    @Column(nullable = false)
-    private String toAccountNumber;
+    @ManyToOne(optional = false)
+    @JoinColumn(
+            name = "to_account_number",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_transfers_to_account")
+    )
+    private Account toAccount;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
@@ -37,9 +50,9 @@ public class Transfer {
     protected Transfer() {
     }
 
-    public Transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount) {
-        this.fromAccountNumber = fromAccountNumber;
-        this.toAccountNumber = toAccountNumber;
+    public Transfer(Account fromAccount, Account toAccount, BigDecimal amount) {
+        this.fromAccount = fromAccount;
+        this.toAccount = toAccount;
         this.amount = amount;
     }
 
@@ -47,12 +60,12 @@ public class Transfer {
         return transferId;
     }
 
-    public String getFromAccountNumber() {
-        return fromAccountNumber;
+    public Account getFromAccount() {
+        return fromAccount;
     }
 
-    public String getToAccountNumber() {
-        return toAccountNumber;
+    public Account getToAccount() {
+        return toAccount;
     }
 
     public BigDecimal getAmount() {

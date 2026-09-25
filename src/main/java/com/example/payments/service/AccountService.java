@@ -63,7 +63,7 @@ public class AccountService {
         if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Only accounts with a zero balance can be deleted.");
         }
-        if (transferRepository.existsByFromAccountNumberOrToAccountNumber(accountNumber, accountNumber)) {
+        if (transferRepository.existsByFromAccount_AccountNumberOrToAccount_AccountNumber(accountNumber, accountNumber)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Accounts with transfer history cannot be deleted.");
         }
 

@@ -1,6 +1,6 @@
 package com.example.payments.controller;
 
-import com.example.payments.model.Transfer;
+import com.example.payments.model.TransferReceipt;
 import com.example.payments.model.TransferRequest;
 import com.example.payments.service.TransferService;
 import org.springframework.http.HttpStatus;
@@ -21,8 +21,8 @@ public class TransferController {
 
     @PostMapping("/transfers")
     @ResponseStatus(HttpStatus.CREATED)
-    public Transfer initiateTransfer(@RequestBody TransferRequest request) {
-        return transferService.initiateTransfer(request);
+    public TransferReceipt initiateTransfer(@RequestBody TransferRequest request) {
+        return TransferReceipt.from(transferService.initiateTransfer(request));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
