@@ -3,33 +3,39 @@ package com.example.payments.service;
 import com.example.payments.model.Payment;
 import com.example.payments.model.PaymentRequest;
 import com.example.payments.model.PaymentStatus;
+import com.example.payments.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class PaymentService {
 
-    private final Map<String, Payment> payments = new ConcurrentHashMap<>();
+    private final PaymentRepository paymentRepository;
 
+    public PaymentService(PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+    }
+
+    @Transactional(readOnly = true)
     public List<Payment> getPayments() {
-        return new ArrayList<>(payments.values());
+        return paymentRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Payment getPayment(String id) {
-        return payments.get(id);
+        return paymentRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public Payment updatePaymentStatus(String id, PaymentStatus status) {
         if (status == null || status == PaymentStatus.PENDING) {
             throw new IllegalArgumentException("Status must be SETTLED or REJECTED.");
         }
 
-        Payment payment = payments.get(id);
+        Payment payment = paymentRepository.findByIdForUpdate(id).orElse(null);
         if (payment == null) {
             return null;
         }
@@ -38,9 +44,10 @@ public class PaymentService {
         }
 
         payment.setStatus(status);
-        return payment;
+        return paymentRepository.save(payment);
     }
 
+    @Transactional
     public Payment createPayment(PaymentRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Payment details are required.");
@@ -65,7 +72,6 @@ public class PaymentService {
                 amount
         );
         payment.setStatus(PaymentStatus.PENDING);
-        payments.put(payment.getId(), payment);
-        return payment;
+        return paymentRepository.save(payment);
     }
 }

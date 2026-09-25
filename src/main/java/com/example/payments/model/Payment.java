@@ -1,19 +1,37 @@
 package com.example.payments.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
+@Entity
+@Table(name = "payments")
 public class Payment {
 
+    @Id
+    @Column(nullable = false, updatable = false, length = 36)
     private String id;
+
+    @Column(nullable = false)
     private String sourceAccount;
+
+    @Column(nullable = false)
     private String destinationAccount;
+
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
     private PaymentStatus status;
 
     public Payment() {
-        this.id = UUID.randomUUID().toString();
-        this.status = PaymentStatus.PENDING;
     }
 
     public Payment(String sourceAccount, String destinationAccount, BigDecimal amount) {

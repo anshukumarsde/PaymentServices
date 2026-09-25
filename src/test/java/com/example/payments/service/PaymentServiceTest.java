@@ -3,22 +3,43 @@ package com.example.payments.service;
 import com.example.payments.model.Payment;
 import com.example.payments.model.PaymentRequest;
 import com.example.payments.model.PaymentStatus;
+import com.example.payments.repository.PaymentRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
 
-    private final PaymentService paymentService = new PaymentService();
+    @Mock
+    private PaymentRepository paymentRepository;
+
+    private PaymentService paymentService;
+
+    @BeforeEach
+    void setUp() {
+        paymentService = new PaymentService(paymentRepository);
+    }
 
     @Test
     void createsPendingPaymentAndMakesItRetrievable() {
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
         Payment payment = paymentService.createPayment(validRequest());
+        when(paymentRepository.findById(payment.getId())).thenReturn(Optional.of(payment));
+        when(paymentRepository.findAll()).thenReturn(List.of(payment));
 
         assertNotNull(payment.getId());
         assertEquals("source-1", payment.getSourceAccount());
@@ -52,7 +73,9 @@ class PaymentServiceTest {
 
     @Test
     void updatesPendingPaymentToTerminalStatusOnce() {
-        Payment payment = paymentService.createPayment(validRequest());
+        Payment payment = new Payment("source-1", "destination-1", new BigDecimal("12.50"));
+        when(paymentRepository.findByIdForUpdate(payment.getId())).thenReturn(Optional.of(payment));
+        when(paymentRepository.save(payment)).thenReturn(payment);
 
         Payment updated = paymentService.updatePaymentStatus(payment.getId(), PaymentStatus.SETTLED);
 
@@ -65,16 +88,15 @@ class PaymentServiceTest {
 
     @Test
     void rejectsPendingStatusAndReturnsNullForUnknownPayment() {
-        Payment payment = paymentService.createPayment(validRequest());
-
         assertThrows(
                 IllegalArgumentException.class,
-                () -> paymentService.updatePaymentStatus(payment.getId(), PaymentStatus.PENDING)
+                () -> paymentService.updatePaymentStatus("payment-id", PaymentStatus.PENDING)
         );
         assertThrows(
                 IllegalArgumentException.class,
-                () -> paymentService.updatePaymentStatus(payment.getId(), null)
+                () -> paymentService.updatePaymentStatus("payment-id", null)
         );
+        when(paymentRepository.findByIdForUpdate("unknown-id")).thenReturn(Optional.empty());
         assertNull(paymentService.updatePaymentStatus("unknown-id", PaymentStatus.SETTLED));
     }
 
