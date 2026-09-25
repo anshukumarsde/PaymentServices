@@ -19,9 +19,9 @@ public class PaymentApplication {
     @Bean
     CommandLineRunner demoAccounts(AccountRepository accounts) {
         return args -> {
-            accounts.save(new Account("1001", new BigDecimal("1000.00")));
-            accounts.save(new Account("1002", new BigDecimal("500.00")));
-            accounts.save(new Account("1003", new BigDecimal("250.00")));
+            accounts.save(new Account("1001", "Alex Morgan", new BigDecimal("1000.00")));
+            accounts.save(new Account("1002", "Jordan Lee", new BigDecimal("500.00")));
+            accounts.save(new Account("1003", "Taylor Smith", new BigDecimal("250.00")));
         };
     }
 }

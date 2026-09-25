@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TransferService {
@@ -55,18 +54,4 @@ public class TransferService {
         ));
     }
 
-    @Transactional(readOnly = true)
-    public List<Account> listAccounts() {
-        return accountRepository.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public List<Transfer> listTransfers() {
-        return transferRepository.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<Transfer> getTransferById(String transferId) {
-        return transferRepository.findById(transferId);
-    }
 }

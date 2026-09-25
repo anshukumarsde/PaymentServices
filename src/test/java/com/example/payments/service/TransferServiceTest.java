@@ -30,8 +30,8 @@ class TransferServiceTest {
     void setUpAccounts() {
         transferRepository.deleteAll();
         accountRepository.deleteAll();
-        accountRepository.save(new Account("1001", new BigDecimal("100.00")));
-        accountRepository.save(new Account("1002", new BigDecimal("50.00")));
+        accountRepository.save(new Account("1001", "Alex Morgan", new BigDecimal("100.00")));
+        accountRepository.save(new Account("1002", "Jordan Lee", new BigDecimal("50.00")));
     }
 
     @Test

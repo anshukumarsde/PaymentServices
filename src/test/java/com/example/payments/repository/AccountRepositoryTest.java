@@ -18,8 +18,8 @@ class AccountRepositoryTest {
 
     @Test
     void savesAndLocksAccountsInOrder() {
-        repository.save(new Account("1002", new BigDecimal("50.00")));
-        repository.save(new Account("1001", new BigDecimal("100.00")));
+        repository.save(new Account("1002", "Jordan Lee", new BigDecimal("50.00")));
+        repository.save(new Account("1001", "Alex Morgan", new BigDecimal("100.00")));
 
         List<Account> accounts = repository.lockByAccountNumbers(List.of("1001", "1002"));
 

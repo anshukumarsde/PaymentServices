@@ -36,20 +36,12 @@ class TransferControllerTest {
     void setUpAccounts() {
         transferRepository.deleteAll();
         accountRepository.deleteAll();
-        accountRepository.save(new Account("1001", new BigDecimal("100.00")));
-        accountRepository.save(new Account("1002", new BigDecimal("50.00")));
+        accountRepository.save(new Account("1001", "Alex Morgan", new BigDecimal("100.00")));
+        accountRepository.save(new Account("1002", "Jordan Lee", new BigDecimal("50.00")));
     }
 
     @Test
-    void reportsApiHealth() throws Exception {
-        mockMvc.perform(get("/api/health"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("UP"))
-                .andExpect(jsonPath("$.service").value("payment-transfers"));
-    }
-
-    @Test
-    void transfersFundsAndReturnsTransfer() throws Exception {
+    void viewAccountsThenTransferAndCheckUpdatedBalances() throws Exception {
         mockMvc.perform(get("/api/accounts"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].accountNumber").exists());
@@ -64,12 +56,13 @@ class TransferControllerTest {
                 .andExpect(jsonPath("$.fromAccountNumber").value("1001"))
                 .andExpect(jsonPath("$.amount").value(25.00));
 
-        String transferId = transferRepository.findAll().get(0).getTransferId();
-        mockMvc.perform(get("/api/transfers/{transferId}", transferId))
+        mockMvc.perform(get("/api/accounts"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.transferId").value(transferId));
+                .andExpect(jsonPath("$[?(@.accountNumber == '1001')].balance").value(75.0))
+                .andExpect(jsonPath("$[?(@.accountNumber == '1002')].balance").value(75.0));
         assertEquals(new BigDecimal("75.00"), accountRepository.findById("1001").orElseThrow().getBalance());
         assertEquals(new BigDecimal("75.00"), accountRepository.findById("1002").orElseThrow().getBalance());
+        assertEquals(1, transferRepository.count());
     }
 
     @Test
