@@ -88,4 +88,30 @@ class AccountControllerTest {
                 .andExpect(status().isConflict());
         assertTrue(accountRepository.existsById("3001"));
     }
+
+    @Test
+    void mapsServiceExceptionsThroughCentralHandler() throws Exception {
+        mockMvc.perform(get("/api/accounts/unknown"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Account number was not found."));
+
+        accountRepository.save(new Account("4001", "Casey Doe", BigDecimal.ZERO));
+        mockMvc.perform(post("/api/accounts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"accountNumber":"4001","accountHolderName":"Another Name","openingBalance":0.00}
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("Account number already exists."));
+    }
+
+    @Test
+    void mapsMalformedRequestBodiesThroughCentralHandler() throws Exception {
+        mockMvc.perform(post("/api/accounts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{invalid json"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Request body is missing or invalid."));
+    }
+
 }

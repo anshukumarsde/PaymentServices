@@ -4,10 +4,7 @@ import com.example.payments.model.TransferReceipt;
 import com.example.payments.model.TransferRequest;
 import com.example.payments.service.TransferService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -23,10 +20,5 @@ public class TransferController {
     @ResponseStatus(HttpStatus.CREATED)
     public TransferReceipt initiateTransfer(@RequestBody TransferRequest request) {
         return TransferReceipt.from(transferService.initiateTransfer(request));
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleInvalidTransferRequest(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
     }
 }
