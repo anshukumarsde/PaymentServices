@@ -26,6 +26,16 @@ Use Java 17 and start `PaymentApplication` from IntelliJ, or run `mvn spring-boo
 | `DELETE` | `/api/accounts/{accountNumber}` | Delete an account only if its balance is zero and it has no transfer history |
 | `POST` | `/api/transfers` | Transfer funds and receive a receipt |
 
+## Error responses
+
+API errors use a JSON response with an `error` message, for example:
+
+```json
+{"error":"Account number was not found."}
+```
+
+Expected errors include `400 Bad Request` for invalid account or transfer details, insufficient funds, or malformed JSON; `404 Not Found` when an account cannot be found; and `409 Conflict` for duplicate account numbers, accounts that cannot be deleted, or data integrity conflicts.
+
 Follow these steps in order. Use one PowerShell window for the commands and keep the application running in IntelliJ or in a separate terminal. The app seeds accounts `1001` ($1,000), `1002` ($500), and `1003` ($250) each time it starts. Amounts below are USD.
 
 ### 1. Start the application
